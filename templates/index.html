@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypt_Web</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+
+  <style>
+    /* Global reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    /* Page Body */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 15px;
+      background: #1abc9c;
+      overflow: hidden;
+    }
+
+    /* Main Wrapper */
+    .wrapper {
+      max-width: 500px;
+      width: 100%;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0px 4px 10px 1px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    /* Notification Message Bar */
+    .notification-bar {
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 16px;
+      display: none;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Green success */
+    .success {
+      background-color: #2ecc71;
+    }
+
+    /* Red failure */
+    .failure {
+      background-color: #ff4757;
+    }
+
+    /* Title Section */
+    .wrapper .title {
+      height: 120px;
+      background: #16a085;
+      border-radius: 5px 5px 0 0;
+      color: #fff;
+      font-size: 30px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Form Container */
+    .wrapper form {
+      padding: 25px 35px;
+    }
+
+    /* Input Row */
+    .wrapper form .row {
+      height: 60px;
+      margin-top: 15px;
+      position: relative;
+    }
+
+    /* Styling Input Fields */
+    .wrapper form .row input {
+      height: 100%;
+      width: 100%;
+      outline: none;
+      padding-left: 70px;
+      border-radius: 5px;
+      border: 1px solid lightgrey;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+
+    /* Icon Position Styling */
+    .wrapper form .row i {
+      position: absolute;
+      width: 55px;
+      height: 100%;
+      color: #fff;
+      font-size: 22px;
+      background: #16a085;
+      border: 1px solid #16a085;
+      border-radius: 5px 0 0 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Button Styles */
+    .wrapper form .button input {
+      margin-top: 20px;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 500;
+      padding: 10px;
+      background: #16a085;
+      border: 1px solid #16a085;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+
+    form .button input:hover {
+      background: #12876f;
+    }
+
+    .flash-messages .alert {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px 15px;
+      border: 1px solid #f5c6cb;
+      border-radius: 5px;
+      margin: 5px 0;
+      text-align: center;
+    }
+
+    /* Sign Up Section */
+    .signup-section {
+      margin-top: 25px;
+      margin-bottom: 25px;
+      text-align: center;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .signup-section a {
+      color: #16a085;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    .signup-section a:hover {
+      color: #12876f;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="notification-bar" id="notificationBar"></div>
+
+    <div class="title">
+      <span>Login Form</span>
+    </div>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for message in messages %}
+          <div class="alert">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+    <form action="/login" method="POST">
+      <div class="row">
+        <i class="fas fa-user"></i>
+        <input type="text" id="email" name="email" placeholder="Email" required />
+      </div>
+
+      <div class="row">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="password" name="password" placeholder="Password" required />
+      </div>
+      <div class="row button">
+        <input type="submit" value="Login" />
+      </div>
+    </form>
+
+    <div class="signup-section">
+      Don't have an account? <a href="/signup">Sign Up</a>
+    </div>
+  </div>
+</body>
+</html>

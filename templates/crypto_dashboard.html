@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crypto Dashboard</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f5f5;
+      padding: 30px;
+      overflow-x: hidden;
+    }
+
+    .dashboard {
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 1s ease-out;
+      position: relative;
+    }
+
+    .dashboard h1 {
+      text-align: center;
+      color: #16a085;
+      animation: slideIn 1s ease-out;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #e74c3c;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
+    }
+
+    .form-container {
+      margin-top: 20px;
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    .form-container textarea {
+      width: 100%;
+      height: 100px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-container textarea:focus {
+      border-color: #16a085;
+    }
+
+    .form-container select, .form-container button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .form-container button {
+      background: #16a085;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .form-container button:hover {
+      background: #12876f;
+      transform: scale(1.05);
+    }
+
+    .notes-container {
+      margin-top: 30px;
+      animation: fadeInUp 0.7s ease-out;
+    }
+
+    .note {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 10px;
+      position: relative;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      animation: fadeInNote 0.5s ease-out forwards;
+    }
+
+    .note-actions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .note:hover .note-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .note-actions button {
+      background-color: #16a085;
+      color: white;
+      font-size: 14px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s;
+    }
+
+    .note-actions button:hover {
+      background-color: #12876f;
+      transform: scale(1.1);
+    }
+
+    .note-actions button:focus {
+      outline: none;
+    }
+
+    .note-actions button.delete {
+      background-color: #e74c3c;
+    }
+
+    .note-actions button.delete:hover {
+      background-color: #c0392b;
+    }
+
+    .note-actions button.decrypt {
+      background-color: #f39c12;
+    }
+
+    .note-actions button.decrypt:hover {
+      background-color: #e67e22;
+    }
+
+    .note-actions button.edit {
+      background-color: #3498db;
+    }
+
+    .note-actions button.edit:hover {
+      background-color: #2980b9;
+    }
+
+    #preview {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #777;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInNote {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <h1>Crypto Dashboard</h1>
+    <p>Welcome, {{ user_name }}!</p> 
+    <div class="form-container">
+      <textarea id="noteInput" placeholder="Write your note here..."></textarea>
+      <select id="encryptionMethod" onchange="updatePreview()">
+        <option value="affine">Affine Encryption</option>
+        <option value="caesar">Caesar Cipher</option>
+        <option value="vigenere">Vigenère Cipher</option>
+      </select>
+      
+      <div id="preview"></div>
+      <button onclick="addNote()">Add Note</button>
+    </div>
+    <div class="notes-container" id="notesContainer"></div>
+  </div>
+
+  <script>
+    const notesContainer = document.getElementById('notesContainer');
+    const noteInput = document.getElementById('noteInput');
+    const encryptionMethod = document.getElementById('encryptionMethod');
+    const preview = document.getElementById('preview');
+
+    function affineEncrypt(text, a, b) {
+      return `${text}`;
+    }
+
+    function caesarEncrypt(text, shift) {
+      let encrypted = '';
+      for (let i = 0; i < text.length; i++) {
+        let char = text[i];
+        if (char.match(/[a-zA-Z]/)) {
+          let code = text.charCodeAt(i);
+          let base = char.toLowerCase() === char ? 97 : 65;
+          encrypted += String.fromCharCode(((code - base + shift) % 26) + base);
+        } else {
+          encrypted += char;
+        }
+      }
+      return encrypted;
+    }
+
+    function encrypt(text, method) {
+      if (method === 'affine') {
+        return affineEncrypt(text, 5, 8); 
+      } else if (method === 'caesar') {
+        return caesarEncrypt(text, 3);
+      }
+      return text;
+    }
+
+    function updatePreview() {
+      const text = noteInput.value;
+      const method = encryptionMethod.value;
+      const encryptedText = encrypt(text, method);
+      preview.textContent = `Encrypted Preview: ${encryptedText}`;
+    }
+
+    function addNote() {
+      const text = noteInput.value;
+      const method = encryptionMethod.value;
+      const encryptedText = encrypt(text, method);
+
+      if (text.trim() === '') {
+        alert('Please enter a note.');
+        return;
+      }
+
+      fetch('/add_note', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ note: encryptedText, method: method }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderNotes(data.notes);
+          }
+        });
+
+      noteInput.value = '';
+      preview.textContent = '';
+    }
+
+    function renderNotes(notes) {
+      notesContainer.innerHTML = '';
+      notes.forEach(note => {
+        const div = document.createElement('div');
+        div.className = 'note';
+        div.innerHTML = ` 
+          <p><b>Encrypted:</b> ${note.content}</p>
+          <p><b>Method:</b> ${note.method}</p>
+          <div class="note-actions">
+            <button class="decrypt" onclick="decryptNote(${note.id})">Decrypt</button>
+            <button class="edit" onclick="editNote(${note.id})">Edit</button>
+            <button class="delete" onclick="deleteNote(${note.id})">Delete</button>
+          </div>
+        `;
+        notesContainer.appendChild(div);
+      });
+    }
+
+    function deleteNote(id) {
+      fetch(`/delete_note/${id}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderNotes(data.notes);
+          }
+        });
+    }
+
+    function decryptNote(noteId) {
+      fetch(`/decrypt_note/${noteId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(`Decrypted Note: ${data.decrypted_note}`);
+          } else {
+            alert(data.error);
+          }
+        });
+    }
+
+    function editNote(noteId) {
+      const newContent = prompt("Enter new content for the note:");
+      if (!newContent) return;
+
+      fetch(`/edit_note/${noteId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ note: newContent, method: 'affine' }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderNotes(data.notes);
+          } else {
+            alert(data.error);
+          }
+        });
+    }
+
+    function logout() {
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>
